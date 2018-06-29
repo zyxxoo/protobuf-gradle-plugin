@@ -13,7 +13,7 @@ public class TestLibrary {
   io.grpc.testing.Messages.SimpleRequest simpleRequest;
 
   // From lib/protos.jar
-  com.google.protobuf.gradle.test.External.BlobMessage blobMessage;
+  com.google.protobuf.lark.gradle.test.External.BlobMessage blobMessage;
 
   // TODO(zpencer): reflectively check that unit test protos are not visible
   // This requires figuring out how to get androidTest to run. Currently the sources in androidTest

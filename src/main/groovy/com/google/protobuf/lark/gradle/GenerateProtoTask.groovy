@@ -27,12 +27,10 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.google.protobuf.gradle
+package com.google.protobuf.lark.gradle
 
 import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableList
-import com.google.common.primitives.Ints
-
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Named
@@ -400,7 +398,8 @@ public class GenerateProtoTask extends DefaultTask {
   void compile() {
     Preconditions.checkState(state == State.FINALIZED, 'doneConfig() has not been called')
 
-    ToolsLocator tools = project.protobuf.tools
+    logger.log(LogLevel.INFO, "generate ProtoTask compile")
+//    ToolsLocator tools = project.protobuf.tools
     // Sort to ensure generated descriptors have a canonical representation
     // to avoid triggering unnecessary rebuilds downstream
     List<File> protoFiles = inputs.sourceFiles.files.sort()
@@ -410,50 +409,51 @@ public class GenerateProtoTask extends DefaultTask {
       outputDir.mkdirs()
     }
 
-    List<String> dirs = includeDirs*.path.collect { "-I${it}" }
-    logger.debug "ProtobufCompile using directories ${dirs}"
-    logger.debug "ProtobufCompile using files ${protoFiles}"
-    List<String> baseCmd = [ tools.protoc.path ]
-    baseCmd.addAll(dirs)
+    List<String> baseCmd = new ArrayList<>();
+//    List<String> dirs = includeDirs*.path.collect { "--includes=${it}" }
+//    logger.debug "ProtobufCompile using directories ${dirs}"
+//    logger.debug "ProtobufCompile using files ${protoFiles}"
+////    List<String> baseCmd = [ tools.protoc.path ]
+//    baseCmd.addAll(dirs)
 
     // Handle code generation built-ins
     builtins.each { builtin ->
       String outPrefix = makeOptionsPrefix(builtin.options)
       baseCmd += "--${builtin.name}_out=${outPrefix}${getOutputDir(builtin)}"
+      logger.log(LogLevel.INFO, "builtin.name= ${builtin.name}")
     }
 
-    // Handle code generation plugins
-    plugins.each { plugin ->
-      String name = plugin.name
-      ExecutableLocator locator = tools.plugins.findByName(name)
-      if (locator == null) {
-        throw new GradleException("Codegen plugin ${name} not defined")
+//    plugins.each { plugin ->
+//      String name = plugin.name
+//      ExecutableLocator locator = tools.plugins.findByName(name)
+//      if (locator == null) {
+//        throw new GradleException("Codegen plugin ${name} not defined")
+//      }
+//      String pluginOutPrefix = makeOptionsPrefix(plugin.options)
+//      baseCmd += "--${name}_out=${pluginOutPrefix}${getOutputDir(plugin)}"
+//      logger.log(LogLevel.INFO, "plugin.name= ${builtin.name}")
+//    }
+
+    List<String> cmds = new ArrayList<>()
+    generateProtoPath(cmds, protoFiles)
+    cmds.addAll(baseCmd)
+
+    logger.log(LogLevel.INFO, cmds.toString())
+    com.squareup.wire.WireCompiler.main((String[])cmds.toArray())
+  }
+
+  private void generateProtoPath(List<String> cmds, List<File> protoFiles) {
+    Set<String> dirSets = new HashSet<>();
+    for (File proto : protoFiles) {
+      if (proto.isDirectory()) {
+        dirSets.add(proto.toString())
+      } else {
+        dirSets.add(proto.getParentFile().toString())
       }
-      String pluginOutPrefix = makeOptionsPrefix(plugin.options)
-      baseCmd += "--${name}_out=${pluginOutPrefix}${getOutputDir(plugin)}"
-      baseCmd += "--plugin=protoc-gen-${name}=${locator.path}"
     }
 
-    if (generateDescriptorSet) {
-      String path = getDescriptorPath()
-      // Ensure that the folder for the descriptor exists;
-      // the user may have set it to point outside an existing tree
-      File folder = new File(path).parentFile
-      if (!folder.exists()) {
-        folder.mkdirs()
-      }
-      baseCmd += "--descriptor_set_out=${path}"
-      if (descriptorSetOptions.includeImports) {
-        baseCmd += "--include_imports"
-      }
-      if (descriptorSetOptions.includeSourceInfo) {
-        baseCmd += "--include_source_info"
-      }
-    }
-
-    List<List<String>> cmds = generateCmds(baseCmd, protoFiles, getCmdLengthLimit())
-    for (List<String> cmd : cmds) {
-      compileFiles(cmd)
+    for (String dir : dirSets) {
+      cmds.add("--proto_path=" + dir)
     }
   }
 
@@ -466,7 +466,7 @@ public class GenerateProtoTask extends DefaultTask {
     result.waitForProcessOutput(stdout, stderr)
     String output = "protoc: stdout: ${stdout}. stderr: ${stderr}"
     if (result.exitValue() == 0) {
-      logger.log(LogLevel.INFO, output)
+//      logger.log(LogLevel.INFO, output)
     } else {
       throw new GradleException(output)
     }

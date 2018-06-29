@@ -1,4 +1,4 @@
-package com.google.protobuf.gradle
+package com.google.protobuf.lark.gradle
 
 import com.google.common.collect.ImmutableSet
 import org.gradle.api.Project

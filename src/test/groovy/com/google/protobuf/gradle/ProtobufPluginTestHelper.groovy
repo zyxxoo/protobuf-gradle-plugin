@@ -1,4 +1,4 @@
-package com.google.protobuf.gradle
+package com.google.protobuf.lark.gradle
 
 import org.apache.commons.io.FileUtils
 

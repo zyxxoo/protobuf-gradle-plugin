@@ -26,54 +26,23 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.google.protobuf.gradle
+package com.google.protobuf.lark.gradle
 
-import org.gradle.api.Named
+import org.gradle.api.file.FileTreeElement
+import org.gradle.api.internal.file.DefaultSourceDirectorySet
+import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.file.collections.DefaultDirectoryFileTreeFactory
+import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.util.PatternFilterable
 
 /**
- * Locates an executable that can either be found locally or downloaded from
- * repositories.  If configured multiple times, the last call wins.  If never
- * configured, the plugin should try to run the executable from system search
- * path.
+ * The backing class of the proto extension added to sourceSets, e.g., sourceSets.main.proto
  */
-public class ExecutableLocator implements Named {
+public class ProtobufSourceDirectorySet extends DefaultSourceDirectorySet {
 
-  private final String name
-
-  private String artifact
-  private String path
-
-  public ExecutableLocator(String name) {
-    this.name = name
-  }
-
-  @Override
-  public String getName() {
-    return name
-  }
-
-  /**
-   * Specifies an artifact spec for downloading the executable from
-   * repositories. spec format: '<groupId>:<artifactId>:<version>'
-   */
-  public setArtifact(String spec) {
-    this.artifact = spec
-    this.path = null
-  }
-
-  /**
-   * Specifies a local path.
-   */
-  public setPath(String path) {
-    this.path = path
-    this.artifact = null
-  }
-
-  public String getArtifact() {
-    return artifact
-  }
-
-  public String getPath() {
-    return path
+  public ProtobufSourceDirectorySet(String name, FileResolver fileResolver) {
+    super(name, String.format("%s Proto source", name), fileResolver, new DefaultDirectoryFileTreeFactory())
+    srcDir("src/${name}/proto")
+    include("**/*.proto")
   }
 }

@@ -12,7 +12,7 @@ class HelloWorldActivityKotlin : AppCompatActivity() {
   var simpleRequest = io.grpc.testing.Messages.SimpleRequest.getDefaultInstance()
 
   // From lib/protos.jar
-  var blobMessage = com.google.protobuf.gradle.test.External.BlobMessage.getDefaultInstance()
+  var blobMessage = com.google.protobuf.lark.gradle.test.External.BlobMessage.getDefaultInstance()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

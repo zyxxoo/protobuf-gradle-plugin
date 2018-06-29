@@ -27,7 +27,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.google.protobuf.gradle
+package com.google.protobuf.lark.gradle
 
 import com.google.common.collect.ImmutableList
 
@@ -124,7 +124,7 @@ class ProtobufPlugin implements Plugin<Project> {
 
         project.convention.plugins.protobuf = new ProtobufConvention(project, fileResolver)
 
-        addSourceSetExtensions()
+        addSourceSetExtensions() // 1. protobuf path
         getSourceSets().all { sourceSet ->
           createConfiguration(sourceSet.name)
         }
@@ -325,11 +325,12 @@ class ProtobufPlugin implements Plugin<Project> {
           // Include sources
           Utils.addFilesToTaskInputs(project, inputs, sourceSet.proto)
           ProtobufSourceDirectorySet protoSrcDirSet = sourceSet.proto
-          protoSrcDirSet.srcDirs.each { srcDir ->
+
+            protoSrcDirSet.srcDirs.each { srcDir ->
             include srcDir
           }
 
-          // Include extracted sources
+            // Include extracted sources
           ConfigurableFileTree extractedProtoSources =
               project.fileTree(getExtractedProtosDir(sourceSet.name)) {
                 include "**/*.proto"

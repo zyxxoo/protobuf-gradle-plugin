@@ -14,7 +14,6 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'com.github.ben-manes.versions'
 
 group = 'com.google.protobuf'
@@ -29,13 +28,16 @@ buildscript {
 
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.12.0"
     }
 }
 
 repositories {
+    mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }
+    maven {
+        url "https://maven.byted.org/repository/lark_android/"
+    }
 }
 
 configurations {
@@ -67,6 +69,7 @@ dependencies {
     compile 'com.google.guava:guava:18.0'
     compile 'com.google.gradle:osdetector-gradle-plugin:1.4.0'
     compile 'commons-lang:commons-lang:2.6'
+//    compile 'com.squareup.wire:wire-runtime:2.2.0'
 
     testCompile gradleTestKit()
     testCompile gradleApi()
@@ -81,6 +84,9 @@ dependencies {
 
     // Add the classpath file to the test runtime classpath
     testRuntime files(createClasspathManifest)
+
+//    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.ss.android.lark:squareup_writer_compiler:0.0.1'
 }
 
 test.inputs.files fileTree("$projectDir/testProject")
@@ -121,72 +127,88 @@ if (!gradle.startParameter.taskNames.intersect(['publishPlugins'])) {
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
-          authentication(userName: ossrhUsername, password: ossrhPassword)
-        }
-      }
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
-          authentication(userName: ossrhUsername, password: ossrhPassword)
-        }
-      }
-      pom.project {
-        name project.name
-        description "Gradle build plugin to handle Protocol Buffers automated code generation and compilation"
-        url "https://github.com/google/protobuf-gradle-plugin"
-        licenses {
-          license {
-            name "BSD 3-Clause"
-            url "http://opensource.org/licenses/BSD-3-Clause"
-          }
-        }
-        developers {
-          developer {
-            id "zhangkun83"
-            name "Kun Zhang"
-            email "zhangkun@google.com"
-          }
-        }
-        scm {
-          connection "scm:git:git://github.com/google/protobuf-gradle-plugin.git"
-          developerConnection "scm:git:git@github.com:google/protobuf-gradle-plugin.git"
-          url "https://github.com/google/protobuf-gradle-plugin"
-        }
-      }
-    }
-  }
-}
+//uploadArchives {
+//  repositories {
+//    mavenDeployer {
+//      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//        if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
+//      }
+//      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//        if (rootProject.hasProperty("ossrhUsername") && rootProject.hasProperty("ossrhPassword")) {
+//          authentication(userName: ossrhUsername, password: ossrhPassword)
+//        }
+//      }
+//      pom.project {
+//        name project.name
+//        description "Gradle build plugin to handle Protocol Buffers automated code generation and compilation"
+//        url "https://github.com/google/protobuf-gradle-plugin"
+//        licenses {
+//          license {
+//            name "BSD 3-Clause"
+//            url "http://opensource.org/licenses/BSD-3-Clause"
+//          }
+//        }
+//        developers {
+//          developer {
+//            id "zhangkun83"
+//            name "Kun Zhang"
+//            email "zhangkun@google.com"
+//          }
+//        }
+//        scm {
+//          connection "scm:git:git://github.com/google/protobuf-gradle-plugin.git"
+//          developerConnection "scm:git:git@github.com:google/protobuf-gradle-plugin.git"
+//          url "https://github.com/google/protobuf-gradle-plugin"
+//        }
+//      }
+//    }
+//  }
+//}
 
-pluginBundle {
-  website = 'https://github.com/google/protobuf-gradle-plugin'
-  vcsUrl = 'https://github.com/google/protobuf-gradle-plugin'
-  description = 'The Protobuf plugin provides protobuf compilation to your project.'
+//设置maven deployer
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            //设置插件的GAV参数
+//            pom.groupId = 'com.ss.android.lark'
+//            pom.artifactId = 'protobuf_plugin'
+//            pom.version = 1.10
+//            //文件发布到下面目录
+//            repository(url: uri('/Users/zy/Documents/code/maven'))
+//        }
+//    }
+//}
 
-  plugins {
-      protobufPlugin {
-          id = 'com.google.protobuf'
-          displayName = 'Protobuf Plugin for Gradle'
-          tags = ['protobuf', 'protocol-buffers', 'protoc']
-      }
-  }
-}
+apply from:"upload_aar.gradle"
+
+//pluginBundle {
+//  website = 'https://github.com/google/protobuf-gradle-plugin'
+//  vcsUrl = 'https://github.com/google/protobuf-gradle-plugin'
+//  description = 'The Protobuf plugin provides protobuf compilation to your project.'
+//
+//  plugins {
+//      protobufPlugin {
+//          id = 'com.ss.android.lark.protobuf_plugin'
+//          displayName = 'Protobuf Plugin for Gradle'
+//          tags = ['protobuf', 'protocol-buffers', 'protoc']
+//      }
+//  }
+//}
 
 // Releases must be built on Java 1.7. Building on Java 1.8 will make the
 // plugin runnable only on Java 1.8.
 // See https://github.com/grpc/grpc-java/issues/805
 tasks.create("checkJavaVersion").doLast {
   JavaVersion javaVersion = JavaVersion.current()
-  if (!javaVersion.isJava7()) {
-    throw new GradleException(
-        "The plugin must be published under Java 1.7 but ${javaVersion} is found")
-  }
+//  if (!javaVersion.isJava7()) {
+//    throw new GradleException(
+//        "The plugin must be published under Java 1.7 but ${javaVersion} is found")
+//  }
 }
-[uploadArchives, publishPlugins]*.dependsOn checkJavaVersion
+//[uploadArchives, publishPlugins]*.dependsOn checkJavaVersion
 
 if (System.env.TRAVIS == 'true') {
   // Normally html output is more user friendly,

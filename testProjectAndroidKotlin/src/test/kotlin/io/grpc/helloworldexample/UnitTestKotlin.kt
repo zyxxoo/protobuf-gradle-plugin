@@ -13,7 +13,7 @@ class UnitTestKotlin {
   var request = Helloworld.HelloRequest.getDefaultInstance()
   var response = Helloworld.HelloReply.getDefaultInstance()
   // From lib/protos.jar
-  var blob = com.google.protobuf.gradle.test.External.BlobMessage.getDefaultInstance()
+  var blob = com.google.protobuf.lark.gradle.test.External.BlobMessage.getDefaultInstance()
   // From test proto:
   var msg1 = com.example.tutorial.UnitTestMsg.getDefaultInstance()
   var msg2 = com.example.tutorial.UnitTestSecondMsg.getDefaultInstance()

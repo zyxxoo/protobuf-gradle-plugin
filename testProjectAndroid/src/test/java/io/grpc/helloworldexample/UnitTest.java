@@ -19,7 +19,7 @@ public final class UnitTest {
   private io.grpc.testing.Messages.SimpleRequest simpleRequest;
 
   // From lib/protos.jar
-  private com.google.protobuf.gradle.test.External.BlobMessage blobMessage;
+  private com.google.protobuf.lark.gradle.test.External.BlobMessage blobMessage;
 
   @Test
   public void ensureAndroidTestProtosNotVisible() throws Exception {
